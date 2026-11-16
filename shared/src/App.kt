@@ -1,8 +1,8 @@
 import androidx.compose.runtime.*
-import .models.Task
-import .screens.CreateTaskScreen
-import .screens.DetailScreen
-import .kotlin.screens.HomeScreen
+import models.Task
+import screens.CreateTaskScreen
+import screens.DetailScreen
+import kotlin.screens.HomeScreen
 
 sealed class CurrentScreen {
     object Home : CurrentScreen()

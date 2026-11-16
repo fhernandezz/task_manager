@@ -1,51 +1,50 @@
-package org.example.taskmanager
-
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.reload.DevelopmentEntryPoint
-import org.jetbrains.compose.resources.painterResource
+import models.Task
+import screens.CreateTaskScreen
+import screens.DetailScreen
+import screens.HomeScreen
 
-import org.example.taskmanager.resources.Res
-import org.example.taskmanager.resources.compose_multiplatform
+sealed class CurrentScreen {
+    object Home : CurrentScreen()
+    object Create : CurrentScreen()
+    data class Detail(val task: Task) : CurrentScreen()
+}
 
 @Composable
-@Preview
-@DevelopmentEntryPoint
 fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
+    var currentScreen by remember { mutableStateOf<CurrentScreen>(CurrentScreen.Home) }
+    
+    // Lista de tareas inicial de ejemplo
+    val tasks = remember { mutableStateListOf(
+        Task(1, "Investigar KMP", "Revisar arquitectura y ventajas", "Alta", false),
+        Task(2, "Diseñar UI", "Crear pantallas en Compose Multiplatform", "Media", false)
+    )}
+
+    when (val screen = currentScreen) {
+        is CurrentScreen.Home -> {
+            HomeScreen(
+                tasks = tasks,
+                onNavigateToCreate = { currentScreen = CurrentScreen.Create },
+                onNavigateToDetail = { task -> currentScreen = CurrentScreen.Detail(task) }
+            )
+        }
+        is CurrentScreen.Create -> {
+            CreateTaskScreen(
+                onTaskCreated = { newTask ->
+                    tasks.add(newTask)
+                    currentScreen = CurrentScreen.Home
+                },
+                onBack = { currentScreen = CurrentScreen.Home }
+            )
+        }
+        is CurrentScreen.Detail -> {
+            DetailScreen(
+                task = screen.task,
+                onStatusChanged = { newStatus ->
+                    screen.task.isCompleted = newStatus
+                },
+                onBack = { currentScreen = CurrentScreen.Home }
+            )
         }
     }
 }

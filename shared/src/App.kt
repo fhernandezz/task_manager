@@ -1,50 +1,77 @@
-import androidx.compose.runtime.*
+package org.example.taskmanager
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import models.Task
 import screens.CreateTaskScreen
 import screens.DetailScreen
-import kotlin.screens.HomeScreen
+import screens.HomeScreen
 
-sealed class CurrentScreen {
+private sealed class CurrentScreen {
     object Home : CurrentScreen()
     object Create : CurrentScreen()
-    data class Detail(val task: Task) : CurrentScreen()
+    data class Detail(val taskId: Int) : CurrentScreen()
 }
 
 @Composable
 fun App() {
     var currentScreen by remember { mutableStateOf<CurrentScreen>(CurrentScreen.Home) }
-    
-    // Lista de tareas inicial de ejemplo
-    val tasks = remember { mutableStateListOf(
-        Task(1, "Investigar KMP", "Revisar arquitectura y ventajas", "Alta", false),
-        Task(2, "Diseñar UI", "Crear pantallas en Compose Multiplatform", "Media", false)
-    )}
+    val tasks = remember {
+        mutableStateListOf(
+            Task(1, "Investigar KMP", "Revisar arquitectura y ventajas", "Alta"),
+            Task(2, "Diseñar UI", "Crear pantallas en Compose Multiplatform", "Media")
+        )
+    }
 
     when (val screen = currentScreen) {
-        is CurrentScreen.Home -> {
+        CurrentScreen.Home -> {
             HomeScreen(
                 tasks = tasks,
                 onNavigateToCreate = { currentScreen = CurrentScreen.Create },
-                onNavigateToDetail = { task -> currentScreen = CurrentScreen.Detail(task) }
+                onNavigateToDetail = { task ->
+                    currentScreen = CurrentScreen.Detail(task.id)
+                }
             )
         }
-        is CurrentScreen.Create -> {
+
+        CurrentScreen.Create -> {
             CreateTaskScreen(
                 onTaskCreated = { newTask ->
-                    tasks.add(newTask)
+                    val nextId = (tasks.maxOfOrNull { it.id } ?: 0) + 1
+                    tasks.add(newTask.copy(id = nextId))
                     currentScreen = CurrentScreen.Home
                 },
                 onBack = { currentScreen = CurrentScreen.Home }
             )
         }
+
         is CurrentScreen.Detail -> {
-            DetailScreen(
-                task = screen.task,
-                onStatusChanged = { newStatus ->
-                    screen.task.isCompleted = newStatus
-                },
-                onBack = { currentScreen = CurrentScreen.Home }
-            )
+            val selectedTask = tasks.firstOrNull { it.id == screen.taskId }
+
+            if (selectedTask == null) {
+                HomeScreen(
+                    tasks = tasks,
+                    onNavigateToCreate = { currentScreen = CurrentScreen.Create },
+                    onNavigateToDetail = { task ->
+                        currentScreen = CurrentScreen.Detail(task.id)
+                    }
+                )
+            } else {
+                DetailScreen(
+                    task = selectedTask,
+                    onStatusChanged = { newStatus ->
+                        val taskIndex = tasks.indexOfFirst { it.id == screen.taskId }
+                        if (taskIndex >= 0) {
+                            tasks[taskIndex] = tasks[taskIndex].copy(isCompleted = newStatus)
+                        }
+                    },
+                    onBack = { currentScreen = CurrentScreen.Home }
+                )
+            }
         }
     }
 }

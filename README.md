@@ -8,11 +8,9 @@ La idea principal es utilizar Kotlin Multiplatform para construir una aplicació
 
 La aplicación permite gestionar tareas mediante tres pantallas principales:
 
-- **Inicio:** muestra dinámicamente el listado de tareas registradas, su prioridad y su estado.
-- **Crear tarea:** permite registrar nuevas tareas indicando su nombre, descripción y prioridad. También incluye validaciones básicas para evitar campos vacíos.
-- **Detalle de tarea:** muestra la información de cada tarea y permite marcarla como completada o pendiente.
-- **Eliminar tareas:** permite eliminar tareas registradas desde el listado principal.
-- **Gestión dinámica de datos:** actualiza automáticamente la lista cuando se agregan, modifican o eliminan tareas.
+- **Inicio:** muestra el listado de tareas registradas, su prioridad y su estado.
+- **Crear tarea:** permite registrar una nueva tarea indicando su nombre, descripción y prioridad. También incluye validaciones básicas para evitar campos vacíos.
+- **Detalle de tarea:** muestra la información de una tarea y permite marcarla como completada o pendiente.
 
 Al iniciar la aplicación se muestran algunas tareas de ejemplo. Las tareas nuevas y sus cambios se mantienen en memoria durante la ejecución de la aplicación.
 
@@ -23,33 +21,6 @@ Al iniciar la aplicación se muestran algunas tareas de ejemplo. Las tareas nuev
 - **Compose Multiplatform:** se utiliza para construir interfaces gráficas compartidas.
 - **Material 3:** proporciona los componentes visuales utilizados en la interfaz.
 - **Kotlin Toolchain:** permite configurar, compilar, ejecutar y probar los módulos del proyecto.
-
-## Gestión de datos
-
-Los datos de las tareas se administran mediante mutableStateListOf, una colección observable de Compose que permite actualizar dinámicamente la interfaz cuando cambia su contenido.
-
-Cada tarea posee un identificador único, nombre, descripción, prioridad y estado de finalización.
-
-Cuando se agrega una nueva tarea, esta se incorpora al listado principal. De igual manera, cuando se modifica su estado o se elimina, la interfaz refleja automáticamente los cambios realizados.
-
-Actualmente, los datos se almacenan en memoria durante la ejecución de la aplicación. Por lo tanto, los cambios no se conservan cuando se cierra completamente el programa.
-
-## Posible integración con API REST
-
-Como ampliación del proyecto, se contempla la utilización de Ktor Client para establecer comunicación con servicios REST.
-
-Esta integración permitiría consultar, registrar, actualizar y eliminar tareas mediante solicitudes HTTP, así como sincronizar la información con un servidor externo.
-
-Entre las principales operaciones que podrían implementarse se encuentran:
-
-- **GET:** consultar las tareas registradas en el servidor.
-- **POST:** registrar nuevas tareas.
-- **PUT:** actualizar la información de una tarea.
-- **DELETE:** eliminar tareas almacenadas en el servidor.
-
-También se contempla el uso de kotlinx.serialization para convertir los objetos Kotlin al formato JSON y viceversa.
-
-Esta integración permitiría centralizar la información y facilitar el acceso a las tareas desde diferentes dispositivos.
 
 ## Organización del proyecto
 
@@ -166,15 +137,11 @@ También es posible ejecutar las pruebas de un módulo específico mediante:
 
 El proyecto incluye pruebas para comprobar el funcionamiento del código común y de las implementaciones específicas de cada plataforma.
 
-Durante el desarrollo se reportaron seis pruebas aprobadas mediante Kotlin Toolchain.
-
-Se recomienda comprobar también las operaciones principales de gestión de tareas, incluyendo la creación, consulta, actualización de estado y eliminación de registros.
+Durante el desarrollo se ejecutaron las pruebas automatizadas mediante Kotlin Toolchain, obteniendo seis pruebas aprobadas.
 
 ## Consideraciones
 
 Esta versión utiliza almacenamiento en memoria para gestionar las tareas. Por lo tanto, los cambios realizados no se conservan cuando se cierra completamente la aplicación.
-
-Actualmente, la integración con API REST se contempla como una posible ampliación del proyecto y no como una funcionalidad implementada.
 
 El proyecto busca demostrar las posibilidades de Kotlin Multiplatform mediante una aplicación pequeña y funcional, en la que se comparte código entre diferentes plataformas y se mantienen separadas las implementaciones específicas cuando resulta necesario.
 
